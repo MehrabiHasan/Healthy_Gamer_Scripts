@@ -43,8 +43,5 @@ if text != "example: What are common signs of depression?":
     else: 
         st.write("Sorry Query Couldn't be completed")
 
-#TODO: Add in UI Header
-#TODO: Check Data to make sure this makes sense
-#TODO: Format Data so that the same videos do not show up
 
 
