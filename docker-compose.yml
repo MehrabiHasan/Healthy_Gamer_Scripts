@@ -1,0 +1,145 @@
+version: '3.8'
+services:
+  backend:
+    build: .
+    env_file:
+      - .env
+    image: healthygamergg:v1
+    stdin_open: true 
+    tty: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+          - driver: nvidia
+            capabilities:
+              - gpu
+              - utility # nvidia-smi
+              - compute # CUDA. Required to avoid "CUDA version: N/A"
+              - video   # NVDEC/NVENC. For instance to use a hardware accelerated ffmpeg. Skip it if you don't need it
+    volumes:
+      - code_vol:/home/myuser/code/src/scripts
+      - data_vol:/home/myuser/code/src/data
+    container_name: healthygamergg
+    networks:
+      - healthygamernet
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${STACK_VERSION}
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms750m -Xmx750m #Increase this to 4 Gigabytes
+      - xpack.security.enabled=false
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+      - eslogs:/usr/share/elasticsearch/logs
+    ports:
+      - ${ELASTIC_PORT}:9200
+    networks:
+      - healthygamernet
+    container_name: es_gamer
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${STACK_VERSION}
+    env_file:
+      - .env
+    volumes:
+      - kibanadata:/usr/share/kibana/data
+    ports:
+      - ${KIBANA_PORT}:5601
+    networks:
+      - healthygamernet
+    depends_on:
+      - elasticsearch
+    restart: always 
+    deploy:
+      resources:
+        reservations:
+          memory: 2.5g
+    container_name: kib_gamer
+
+  fastapi:
+    image: fastapi_gamer:${TAG}
+    build: 
+      context: .
+      dockerfile: ./src/api/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - ${API_PORT}:8000
+    depends_on:
+      - elasticsearch
+    volumes:
+      - api_vol:/api
+    networks:
+      - healthygamernet
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+  streamlit:
+    image: streamlit_gamer:${TAG}
+    build: 
+      context: .
+      dockerfile: ./src/frontend/Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - ${ST_PORT}:8501
+    depends_on:
+      - elasticsearch
+    volumes:
+      - fe_vol:/frontend
+    networks:
+      - healthygamernet
+  
+
+volumes:
+  code_vol:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./src/scripts
+  data_vol:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./src/data
+  esdata:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./src/es_vol/data
+  eslogs:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./src/es_vol/logs
+  kibanadata:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./src/es_vol/kibana
+  api_vol:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./src/api
+  fe_vol:
+    driver: local
+    driver_opts:
+      o: bind
+      type: none
+      device: ./src/frontend
+networks:
+  healthygamernet:
+    driver: bridge

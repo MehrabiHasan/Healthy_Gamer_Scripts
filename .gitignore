@@ -1,0 +1,5 @@
+.env
+src/es_vol/data/*
+src/es_vol/kibana/*
+src/es_vol/logs/*
+**/__pycache__/

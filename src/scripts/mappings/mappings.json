@@ -1,0 +1,56 @@
+{
+    "settings": {
+        "analysis": {
+            "analyzer": {
+                "custom_analyzer": {
+                    "type": "custom",
+                    "tokenizer": "standard",
+                    "filter": [
+                        "lowercase"
+                    ]
+                }
+            }
+        }
+    },
+    "mappings": {
+      "properties": {
+        "id": {
+          "type": "integer"
+        },
+        "seek": {
+          "type": "integer"
+        },
+        "start": {
+          "type": "float"
+        },
+        "end": {
+          "type": "float"
+        },
+        "text": {
+          "type": "text"
+        },
+        "title": {
+          "type": "text"
+        },
+        "thumbnail": {
+          "type": "text"
+        },
+        "embedding": {
+          "type": "dense_vector",
+          "dims": 384,
+          "index": true,
+          "similarity": "cosine"
+          
+        },
+        "document_embedding": {
+          "type": "dense_vector",
+          "dims": 384,
+          "index": true,
+          "similarity": "cosine"
+        },
+        "global_id": {
+          "type": "keyword"
+        }
+      }
+    }
+}
