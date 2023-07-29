@@ -11,13 +11,9 @@ Note: Elasticsearch 8.7 is used to store/search vectors.
 Hardware: The laptop used has an RTX 3070 GPU w/ 8GB VRAM. Due to memory constraints, the "tiny" model was used for FasterWhisper. Feel free to experiment with larger models if you have access to better gpus. Also if you don't have access to a GPU, I personally recommend Google Colab. 
 
 ## Run project. 
-Start the docker compose project 
+Start the docker compose project. Then start an interactive terminal of 'healthygamergg' container. Finally Start main script and provide youtube url. Example commands can be found below:
 1. Run Docker Compose 
-
-Create an interactive terminal of 'healthygamergg' container
 2. docker exec -it healthygamergg /bin/bash 
-
-Start main script and provide youtube url
 3. python src/scripts/main.py youtube_url
 
 Note: Healthygamergg videos average about 30+ minutes, which took about 3-5 minutes for each transcription. I also seem to have trouble transcribing videos that were longer than 4 hours. Be sure to monitor your RAM/Memory usage if transcriptions seem to fail. 
